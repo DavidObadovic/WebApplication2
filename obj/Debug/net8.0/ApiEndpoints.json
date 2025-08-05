@@ -1,7 +1,7 @@
 [
   {
     "ContainingType": "WebApplication2.Controllers.TaskController",
-    "Method": "GetTask",
+    "Method": "GetTasks",
     "RelativePath": "api/Task",
     "HttpMethod": "GET",
     "IsController": true,
@@ -35,7 +35,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.List\u00601[[System.Threading.Tasks.Task, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Type": "WebApplication2.Models.TaskItem",
         "MediaTypes": [
           "text/plain",
           "application/json",

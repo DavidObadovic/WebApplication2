@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebApplication2.Data;
 using WebApplication2.Models;
 
 namespace WebApplication2.Controllers
@@ -8,21 +10,30 @@ namespace WebApplication2.Controllers
     [ApiController]
     public class TaskController : ControllerBase
     {
-        private static List<TaskItem> lista = new List<TaskItem>();
+        private readonly AppDbContext _context;
+
+        public TaskController(AppDbContext context)
+        {
+            _context = context;
+        }
+
 
         [HttpGet]
-        public ActionResult<List<TaskItem>> GetTask()
+        public async Task<ActionResult<List<TaskItem>>> GetTasks()
         {
-            return Ok(lista);
+            return await _context.Tasks.ToListAsync();
         }
 
+
         [HttpPost]
-        public ActionResult<List<Task>> CreateTask(TaskItem task)
+        public async Task<ActionResult<TaskItem>> CreateTask(TaskItem task)
         {
-            task.Id = lista.Count + 1;
-            lista.Add(task);
-            return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
+            _context.Tasks.Add(task);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetTasks), new { id = task.Id }, task);
         }
+
 
     }
 }
