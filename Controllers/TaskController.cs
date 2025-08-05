@@ -24,6 +24,36 @@ namespace WebApplication2.Controllers
             return await _context.Tasks.ToListAsync();
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<TaskItem>> GetTaskById(int id)
+        {
+            var task = await _context.Tasks.FindAsync(id);
+
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            return task;
+        }
+
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateTask(int id, [FromBody] TaskItem task)
+        {
+            var izBazeTask = await _context.Tasks.FindAsync(id);
+
+            if (izBazeTask == null)
+                return NotFound();
+
+            izBazeTask.Title = task.Title;
+            izBazeTask.Description = task.Description;
+            izBazeTask.IsCompleted = task.IsCompleted;
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
 
         [HttpPost]
         public async Task<ActionResult<TaskItem>> CreateTask(TaskItem task)
