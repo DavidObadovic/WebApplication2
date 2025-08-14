@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication2.Data;
+using WebApplication2.DTOS;
 using WebApplication2.Models;
 
 namespace WebApplication2.Controllers
@@ -19,27 +20,36 @@ namespace WebApplication2.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<List<TaskItem>>> GetTasks()
+        public async Task<ActionResult<List<TaskReadDto>>> GetTasks(CancellationToken ct)
         {
-            return await _context.Tasks.ToListAsync();
+
+            var items = await _context.Tasks
+                            .AsNoTracking()
+                            .OrderByDescending(t => t.Id)
+                            .Select(t => new TaskReadDto
+                            {
+                                Id = t.Id,
+                                Title = t.Title,
+                                IsCompleted = t.IsCompleted
+                            })
+                            .ToListAsync(ct);
+
+            return Ok(items);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<TaskItem>> GetTaskById(int id)
+        public async Task<ActionResult<TaskReadDto>> GetTaskById(int id, CancellationToken ct)
         {
-            var task = await _context.Tasks.FindAsync(id);
+            var task = await _context.Tasks.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
 
-            if (task == null)
-            {
-                return NotFound();
-            }
+            if (task == null) return NotFound();
 
-            return task;
+            return Ok(ToReadDto(task));
         }
 
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateTask(int id, [FromBody] TaskItem task)
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> UpdateTask(int id, [FromBody] TaskUpdateDto task, CancellationToken ct)
         {
             var izBazeTask = await _context.Tasks.FindAsync(id);
 
@@ -50,20 +60,47 @@ namespace WebApplication2.Controllers
             izBazeTask.Description = task.Description;
             izBazeTask.IsCompleted = task.IsCompleted;
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
 
             return Ok();
         }
 
-        [HttpPost]
-        public async Task<ActionResult<TaskItem>> CreateTask(TaskItem task)
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> DeleteTask(int id, CancellationToken ct)
         {
-            _context.Tasks.Add(task);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetTasks), new { id = task.Id }, task);
+            var task = await _context.Tasks.FindAsync(id);
+            if (task == null)
+            {
+                return NotFound();
+            }
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync(ct);
+            return NoContent();
         }
 
+        [HttpPost]
+        public async Task<ActionResult<TaskCreateDto>> CreateTask([FromBody] TaskCreateDto task, CancellationToken ct)
+        {
+            var entity = new TaskItem
+            {
+                Title = task.Title,
+                Description = task.Description,
+                IsCompleted = task.IsCompleted
+            };
+
+            _context.Tasks.Add(entity);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetTasks), new { id = entity.Id }, entity);
+        }
+
+        private static TaskReadDto ToReadDto(TaskItem t) => new()
+        {
+            Id = t.Id,
+            Title = t.Title,
+            IsCompleted = t.IsCompleted
+        };
 
     }
 }

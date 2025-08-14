@@ -18,7 +18,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TaskItem"
+                    "$ref": "#/components/schemas/TaskReadDto"
                   }
                 }
               },
@@ -26,7 +26,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TaskItem"
+                    "$ref": "#/components/schemas/TaskReadDto"
                   }
                 }
               },
@@ -34,50 +34,11 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TaskItem"
+                    "$ref": "#/components/schemas/TaskReadDto"
                   }
                 }
               }
             }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Task"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TaskItem"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TaskItem"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/TaskItem"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
           }
         }
       },
@@ -89,17 +50,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TaskItem"
+                "$ref": "#/components/schemas/TaskCreateDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/TaskItem"
+                "$ref": "#/components/schemas/TaskCreateDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/TaskItem"
+                "$ref": "#/components/schemas/TaskCreateDto"
               }
             }
           }
@@ -110,17 +71,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskItem"
+                  "$ref": "#/components/schemas/TaskCreateDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskItem"
+                  "$ref": "#/components/schemas/TaskCreateDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskItem"
+                  "$ref": "#/components/schemas/TaskCreateDto"
                 }
               }
             }
@@ -150,20 +111,81 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskItem"
+                  "$ref": "#/components/schemas/TaskReadDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskItem"
+                  "$ref": "#/components/schemas/TaskReadDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskItem"
+                  "$ref": "#/components/schemas/TaskReadDto"
                 }
               }
             }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Task"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Task"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -210,7 +232,29 @@
   },
   "components": {
     "schemas": {
-      "TaskItem": {
+      "TaskCreateDto": {
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "isCompleted": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaskReadDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -221,7 +265,25 @@
             "type": "string",
             "nullable": true
           },
+          "isCompleted": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaskUpdateDto": {
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
           "description": {
+            "maxLength": 500,
             "type": "string",
             "nullable": true
           },
